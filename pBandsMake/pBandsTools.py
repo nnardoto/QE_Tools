@@ -343,7 +343,29 @@ def FilterRoutines(states: pd.DataFrame) -> dict:
 
     return groups
 
-def MakeProjBandInput(setup: dict, states: list)
+def MakeProjBandInput(setup: dict, states: dict, fermi_energy: float):
     """
     create plotbands.x input file using a list of states and setup informations
+    for each element in states dictionary
     """
+
+    if os.path.exists(setup['work_path']):
+        pass
+    else:
+        try:
+            os.mkdir(setup['work_path'])
+
+        except:    
+            print("Passei aqui")
+
+    for itens in states:
+        with open(setup['work_path'] + itens + '.in', 'w') as inFile:
+            inFile.write(setup['bands_file'] + '\n')
+            inFile.write(' '.join(states[itens]["state"].to_list()) + '\n')
+            inFile.write(setup['min_energy'] + ' ' + setup['max_energy'] + '\n')
+            inFile.write(itens + '\n')
+            inFile.write(itens + '.ps\n')
+            inFile.write(str(fermi_energy) + '\n')
+            inFile.write(str(setup['de']) + ' ' + str(fermi_energy) + '\n')
+
+            

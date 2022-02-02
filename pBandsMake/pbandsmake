@@ -32,4 +32,4 @@ tt.box("Your Selections")
 for itens in states:
     print(itens + ': ' + ' '.join(states[itens]["state"].to_list()))
 
-print(setup)
+pbt.MakeProjBandInput(setup, states, 0.0)
