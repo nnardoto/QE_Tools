@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 import pBandsTools as pbt
 import pBandsQuestions as pbq
-import pTerminalTools as ptt
+import TerminalTools as tt
 import sys
 
 
 
 # print a title of program
 
-ptt.ProgramTitle('pBandsMake', 'Nathanael N. Batista', 'nnardoto@gmail.com')
+tt.ProgramTitle('pBandsMake', 'Nathanael N. Batista', 'nnardoto@gmail.com')
 
 # load input file from argv list without verification
 if len(sys.argv) < 2:
-	ptt.box(">>> ERROR: fisrt argument must be a SETUP file", align = 'left', top = False)
+	tt.box(">>> ERROR: fisrt argument must be a SETUP file", align = 'left', top = False)
 	exit()
 
 
@@ -25,10 +25,11 @@ states = pbt.read_states(setup)
 # make panora of project
 pbt.panorama(states)
 
+# select combination of states to projections calculations
 states = pbt.FilterRoutines(states)
 
-ptt.box("Your Selections")
+tt.box("Your Selections")
 for itens in states:
     print(itens + ': ' + ' '.join(states[itens]["state"].to_list()))
 
-
+print(setup)

@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-import pTerminalTools as ptt
+import TerminalTools as ptt
 import pBandsQuestions as pbq
 
 
@@ -336,10 +336,14 @@ def FilterRoutines(states: pd.DataFrame) -> dict:
     groups = FilterStep(groups, 'Orbitals', pbq.OrbitalListQ, getOrbitals, OrbitalFilter)
 
 
-
     ### ONLY FOR SPIN ORBIT CASE ###
     key = list(groups.keys())[0]
     if len(groups[key].columns) == 7:
        groups = FilterStep(groups, 'J', pbq.JListQ, getJ, JFilter)
 
     return groups
+
+def MakeProjBandInput(setup: dict, states: list)
+    """
+    create plotbands.x input file using a list of states and setup informations
+    """
