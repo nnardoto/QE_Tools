@@ -8,7 +8,7 @@ import sys
 
 # print a title of program
 
-ptt.ProgramTitle('pBandsMake', 'pessoinha', 'pessoinha@mail.com')
+ptt.ProgramTitle('pBandsMake', 'Nathanael N. Batista', 'nnardoto@gmail.com')
 
 # load input file from argv list without verification
 if len(sys.argv) < 2:
@@ -27,8 +27,8 @@ pbt.panorama(states)
 
 states = pbt.FilterRoutines(states)
 
-
 ptt.box("Your Selections")
 for itens in states:
-    print(itens)
+    print(itens + ': ' + ' '.join(states[itens]["state"].to_list()))
+
 
