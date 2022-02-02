@@ -16,7 +16,7 @@ def read_states(setup: dict) -> pd.DataFrame:
             # append to DataFrame
             if line.find("state #") > 0:
                 StatesLines.append(clear_str(line, toRemove, ' ').split())
-  
+
             # exit condiction
             elif line.find("k =") > 0:
                 break
@@ -24,17 +24,17 @@ def read_states(setup: dict) -> pd.DataFrame:
 
     # convert to DataFrame
     DataFrame = pd.DataFrame(StatesLines)
-    
+
     # correctly to nome columns
     if len(DataFrame.columns) == 7:
-        DataFrame.columns = ['state', 'atom_n', 'atom_s', 'wfc', 'j', 'l', 'm_j']
+        DataFrame.columns = ['state', 'atom_n', 'atom_s', 'wfc', 'l', 'j', 'm_j']
 
     elif len(DataFrame.columns) == 6:
         DataFrame.columns = ['state', 'atom_n', 'atom_s', 'wfc', 'l', 'm']
 
     # rename orbitals
     DataFrame['l'] = DataFrame['l'].apply(OrbitalName)
-    
+
     return DataFrame
 
 
@@ -42,19 +42,19 @@ def clear_str(rawString: str, toRemove: list, toReplace: str)  -> str:
     """
     remove da string inserida um lista de itens
     """
-    
+
     # fisrt remove list
     for itens in toRemove:
        rawString = rawString.replace(itens, toReplace)
-       
+
     return rawString
-    
-    
+
+
 def OrbitalName(l):
     orbitals = ['s', 'p', 'd', 'f']
     return orbitals[int(l)]
-    
-    
+
+
 def loadSetup(SetupFile: str) -> dict:
     """
     Carrega informações do arquivo setup
@@ -72,26 +72,26 @@ def loadSetup(SetupFile: str) -> dict:
             if Element[0] not in ['#', ' ', '\n']:
                 Element = Element.replace('=', ' ').split()
                 SetupDict[Element[0].lower()] = Element[1]
-                
+
         except IndexError:
             print ("--> There are variable not seted")
             exit()
 
-    
+
     # create a work_path variable from SETUP or default
     try:
         if not SetupDict['work_path'].endswith('/'):
             SetupDict['work_path'] += '/'
-    
+
     except:
         SetupDict['work_path'] = 'work/'
-    
-   
+
+
     # create a input_path variable from SETUP or default
     try:
         if not SetupDict['input_path'].endswith('/'):
             SetupDict['input_path'] += '/'
-    
+
     except:
         SetupDict['input_path'] = 'inputs/'
 
@@ -101,16 +101,15 @@ def loadSetup(SetupFile: str) -> dict:
         if name_list.find('file') > 0:
             SetupDict[name_list] = SetupDict['input_path'] + SetupDict[name_list]
 
-        
-        
+
     # create WORK File
     WORK = open('WORK', 'w')
     WORK.write(SetupDict['work_path'])
     WORK.close()
-    
+
     return SetupDict
-    
-    
+
+
 def AtomFilter(states: pd.DataFrame, filter_list: list, mode = 'all') -> dict:
     """
     filter raw states using filter_list and mode
@@ -158,11 +157,11 @@ def OrbitalFilter(states: dict, filter_list: list, mode = 'all') -> dict:
             for l in states[selection].l.unique():
                 if l in filter_list:
                     orbitals.append(l)
-                
+
             name = '_'
             for elements in orbitals:
                 name += elements
-            
+
             Filtered[selection + name] = states[selection][states[selection].l.isin(filter_list)]
 
         return Filtered
@@ -174,14 +173,14 @@ def OrbitalFilter(states: dict, filter_list: list, mode = 'all') -> dict:
         for l in states[selection].l.unique():
             if l in filter_list:
                 orbitals.append(l)
-                    
+
         for item in orbitals:
             Filtered[selection + '_' + item] = states[selection][states[selection].l == item]
 
     # return dict of results
     return Filtered
-    
-    
+
+
 def JFilter(states: dict, filter_list: list, mode = 'all') -> dict:
     """
     filter states by j value using filter_list and mode
@@ -196,11 +195,11 @@ def JFilter(states: dict, filter_list: list, mode = 'all') -> dict:
             for j in states[selection].j.unique():
                 if j in filter_list:
                     J_list.append(j)
-                
+
             name = '_'
             for elements in J_list:
                 name += elements + '_'
-            
+
             Filtered[selection + name[:-1]] = states[selection][states[selection].j.isin(filter_list)]
 
         return Filtered
@@ -212,46 +211,45 @@ def JFilter(states: dict, filter_list: list, mode = 'all') -> dict:
         for j in states[selection].j.unique():
             if j in filter_list:
                 J_list.append(j)
-                    
+
         for item in J_list:
             Filtered[selection + '_' + item] = states[selection][states[selection].j == item]
 
     # return dict of results
     return Filtered
-    
-    
+
+
 def FilterStep(states: dict, name: str, list_f, get_f, filter_f) -> dict:
     ptt.box("{} Selection".format(name))
     filter_list = list_f(get_f(states))
-    
+
     step_mode = 'all'
     if len(filter_list) > 1:
         step_mode = pbq.EachAll(name)
-        
+
     return filter_f(states, filter_list, mode = step_mode)
 
 def panorama(states: pd.DataFrame):
     """
-    show panorada of states table
+    show panorama of states table
     """
-   
-    
+
     species = states.atom_s.unique()
     orbitals = {}
     for atom in species:
         orbitals[atom] = states[states.atom_s == atom].l.unique()
-	
+
     ptt.draw_line()
     print(ptt.draw_row(['Orbitals for each atom specie']))
     ptt.draw_line(div = 2)
     print(ptt.draw_row(['Atoms Species', 'Orbitals']))
     ptt.draw_line(div = 2)
-    
+
 
     for itens in orbitals:
         print(ptt.draw_row([itens, ' '.join(orbitals[itens])]))
-        
-    
+
+
     ptt.draw_line(div = 2)
 
 def getOrbitals(states: dict):
@@ -264,9 +262,9 @@ def getOrbitals(states: dict):
         sizes.append(len(raw_orbital_list[itens]))
 
     orbitals = ['s', 'p', 'd', 'f']
-    
+
     return orbitals[:max(sizes)]
-    
+
 
 def getJ(states: dict):
     J_list = {}
@@ -277,12 +275,13 @@ def getJ(states: dict):
     out = []
     for itens in J_list:
         out.append(itens)
-        
+
     return out
-    
+
+
 def getAtoms(states: dict):
     Atoms_list = {}
-    
+
     for itens in states:
         for Atoms in states[itens].atom_s.unique():
             Atoms_list[Atoms] = True
@@ -290,7 +289,7 @@ def getAtoms(states: dict):
     out = []
     for itens in Atoms_list:
         out.append(itens)
-        
+
     return out
 
 def getInput(text: str, filter_list: list, default = []):
@@ -300,20 +299,20 @@ def getInput(text: str, filter_list: list, default = []):
     raw = []
     if len(default) == 0:
         raw = input(text).split()
-    
+
     else:
         raw = input(text + ' [' + default + '] ').split()
-    
+
     if len(raw) == 0 and len(default) == 0:
         return getInput(text, filter_list)
-        
+
     elif len(raw) == 0:
         raw = [default]
-        
+
     for elements in raw:
         if elements in filter_list:
             pass
-        
+
         else:
             return getInput(text, filter_list)
 

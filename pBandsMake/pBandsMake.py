@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import pBandsTools as pbt
-import pTerminalTools as ptt
 import pBandsQuestions as pbq
+import pTerminalTools as ptt
 import sys
 
 
