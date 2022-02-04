@@ -2,7 +2,10 @@
 import pBandsTools as pbt
 import pBandsQuestions as pbq
 import TerminalTools as tt
+import os
 import sys
+import string
+import random
 
 
 
@@ -32,4 +35,24 @@ tt.box("Your Selections")
 for itens in states:
     print(itens + ': ' + ' '.join(states[itens]["state"].to_list()))
 
-pbt.MakeProjBandInput(setup, states, 0.0)
+### Gera um Nome de Projeto Unico para o default ###
+
+# Entra no Diretorio WORK e gera um nome aleatório unico
+RandomName = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6))
+
+# Verifica se o nome gerado já existe
+while (os.path.exists(setup["work_path"] + RandomName)):
+	RandomName = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(6))
+
+# Soclicita um Nome de Projeto
+tt.box("Project Name")
+prefix = input("[default: {}] --> ". format(RandomName)) or RandomName
+
+# Gera os Arquivos .in para o plotbands.x
+pbt.MakeProjBandInput(prefix, setup, states, 0.0)
+
+# Roda o plotbands.x para cada arquivo gerado
+pbt.RunPlotBandsX(prefix, setup, states)
+
+# Gera os graficos usando o gnuplot
+pbt.MakeGraphics_gnuplot(prefix, setup, states)

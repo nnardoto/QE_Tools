@@ -343,29 +343,70 @@ def FilterRoutines(states: pd.DataFrame) -> dict:
 
     return groups
 
-def MakeProjBandInput(setup: dict, states: dict, fermi_energy: float):
+def MakeProjBandInput(prefix: str, setup: dict, states: dict, fermi_energy: float):
     """
     create plotbands.x input file using a list of states and setup informations
     for each element in states dictionary
     """
 
-    if os.path.exists(setup['work_path']):
-        pass
-    else:
-        try:
-            os.mkdir(setup['work_path'])
-
-        except:    
-            print("Passei aqui")
+    # cria o diretorio WORK
+    try:
+        os.makedirs(setup['work_path'], exist_ok=True)
+    
+    except:    
+        print("Erro ao Criar o Diretório: " + setup['work_path'])
+        exit()
 
     for itens in states:
-        with open(setup['work_path'] + itens + '.in', 'w') as inFile:
-            inFile.write(setup['bands_file'] + '\n')
+        try:
+            os.makedirs(setup['work_path'] + prefix + '/' + itens, exist_ok=True)
+    
+        except:    
+            print("Erro ao Criar o Diretório: " + prefix + '/' + itens)
+            exit()
+
+        newFile = "{}{}/{}/{}.in".format(setup['work_path'], prefix, itens, itens)
+        with open(newFile, 'w') as inFile:
+            inFile.write('../../../' + setup['bands_file'] + '\n')
             inFile.write(' '.join(states[itens]["state"].to_list()) + '\n')
             inFile.write(setup['min_energy'] + ' ' + setup['max_energy'] + '\n')
-            inFile.write(itens + '\n')
+            inFile.write(itens + '.dat\n')
             inFile.write(itens + '.ps\n')
             inFile.write(str(fermi_energy) + '\n')
             inFile.write(str(setup['de']) + ' ' + str(fermi_energy) + '\n')
 
-            
+
+def RunPlotBandsX(prefix: str, setup: dict, states: dict):
+    """
+    Roda cada arquivo gerado pela função MakeProjBandInput
+    """
+    
+    # salva local atual
+    local_path = os.getcwd()
+
+    # define local completo do plotband.x
+    plotbands = setup['path'] + '/plotband.x'
+    os.chdir(setup['work_path'] + prefix + '/')
+
+    # tenta rodar o plotband.x para cada aquivo gerado e listado no dicionario states
+    for itens in states:
+        os.chdir(itens)
+              
+        try:
+            os.system("mpirun -n 1 {} < {} > log.out".format(plotbands, itens + '.in'))
+        except:
+            print("Erro: {}".format(itens))
+        
+        # Apaga Arquivos Extras (não sei o que significam)
+        os.system("rm *.1* *.ps")
+        os.chdir('..')
+    
+    # retorna para o diretorio inicial
+    os.chdir(local_path)
+
+    
+def MakeGraphics_gnuplot(prefix: str, setup: dict, states: dict):
+    """
+    Produz gráficos a partide de um modelo de script editavel
+    """
+    os.system("pwd")
