@@ -1,3 +1,4 @@
+from errno import EMLINK
 import pandas as pd
 import os
 import TerminalTools as ptt
@@ -394,8 +395,10 @@ def RunPlotBandsX(prefix: str, setup: dict, states: dict):
               
         try:
             os.system("mpirun -n 1 {} < {} > log.out".format(plotbands, itens + '.in'))
+            print("plotband.x: {}".format(itens))
+        
         except:
-            print("Erro: {}".format(itens))
+            print("plotband.x erro: {}".format(itens))
         
         # Apaga Arquivos Extras (não sei o que significam)
         os.system("rm *.1* *.ps")
@@ -405,8 +408,36 @@ def RunPlotBandsX(prefix: str, setup: dict, states: dict):
     os.chdir(local_path)
 
     
-def MakeGraphics_gnuplot(prefix: str, setup: dict, states: dict):
+def MakeGraphics_gnuplot(prefix: str, setup: dict, states: dict, fermi_energy: float):
     """
     Produz gráficos a partide de um modelo de script editavel
     """
-    os.system("pwd")
+    # salva local atual
+    local_path = os.getcwd()
+
+    # define local completo do plotband.x
+    script_path = os.path.dirname(__file__)
+    print(script_path)
+    os.chdir(setup['work_path'] + prefix + '/')
+
+    # tenta rodar o plotband.x para cada aquivo gerado e listado no dicionario states
+    for itens in states:
+        os.chdir(itens)
+              
+        try:
+            emin = setup['min_energy']
+            emax = setup['max_energy']
+            filename = itens
+            fermi = fermi_energy
+            os.system("gnuplot -e \"emin={}; emax={}; filename='{}.dat'; fermi={}; outfile='{}.png'\" {}/MakePicture.gp".format(emin, emax, filename, fermi, filename, script_path))
+            print("gnuplot: {}".format(itens))
+        
+        except:
+            print("gnuplot erro: {}".format(itens))
+        
+        # Apaga Arquivos Extras (não sei o que significam)
+        os.chdir('..')
+    
+    # retorna para o diretorio inicial
+    os.chdir(local_path)
+

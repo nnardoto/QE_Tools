@@ -55,4 +55,4 @@ pbt.MakeProjBandInput(prefix, setup, states, 0.0)
 pbt.RunPlotBandsX(prefix, setup, states)
 
 # Gera os graficos usando o gnuplot
-pbt.MakeGraphics_gnuplot(prefix, setup, states)
+pbt.MakeGraphics_gnuplot(prefix, setup, states, 0.0)
